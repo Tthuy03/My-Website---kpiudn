@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Đánh giá cá nhân – MIS UDN</title>
+
+<link rel="stylesheet" href="style.css"/>
+<style>
+/* ── ADD MODAL ── */
+.add-modal-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.35);align-items:center;justify-content:center}
+.add-modal-overlay.open{display:flex}
+.add-modal-box{background:#fff;border-radius:10px;width:min(620px,92vw);overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.2);animation:popIn .2s cubic-bezier(.34,1.56,.64,1)}
+.add-modal-header{background:#2056a8;display:flex;align-items:center;justify-content:space-between;padding:14px 22px}
+.add-modal-title{font-size:.95rem;font-weight:700;color:#fff;letter-spacing:.3px}
+.add-modal-close{background:none;border:none;color:#fff;cursor:pointer;font-size:1.3rem;opacity:.85}
+.add-modal-close:hover{opacity:1}
+.add-modal-body{padding:24px 28px}
+.add-modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:16px 28px 22px}
+
+/* ── FORM ── */
+.form-row{display:grid;grid-template-columns:160px 1fr;align-items:center;gap:10px;margin-bottom:14px}
+.form-label{font-size:.88rem;font-weight:500;color:#333}
+.form-value{font-size:.88rem;font-weight:700;color:#2056a8}
+.form-input{width:100%;border:1px solid #dde3ee;border-radius:6px;padding:9px 12px;font-size:.87rem;font-family:'Segoe UI','Arial',sans-serif;color:#1a2a4a;background:#fff}
+.form-input:focus{outline:none;border-color:#2056a8;box-shadow:0 0 0 2px rgba(32,86,168,.1)}
+.form-select{width:100%;border:1px solid #dde3ee;border-radius:6px;padding:9px 32px 9px 12px;font-size:.87rem;font-family:'Segoe UI','Arial',sans-serif;color:#666;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;appearance:none;cursor:pointer}
+.form-select:focus{outline:none;border-color:#2056a8}
+
+/* ── VALIDATION ── */
+.form-error{font-size:.75rem;color:#e74c3c;margin-top:4px;display:none}
+.form-error.show{display:block}
+.form-input.error,.form-select.error{border-color:#e74c3c;box-shadow:0 0 0 2px rgba(231,76,60,.1)}
+
+/* ── TABLE ── */
+.table-wrap{margin-top:16px;border-radius:8px;border:1.5px solid #c8d6ea;overflow:hidden;display:none}
+.table-wrap.show{display:block}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead tr{background:#2056a8}
+thead th{padding:11px 12px;color:#fff;font-weight:600;font-size:.82rem;text-align:left;white-space:nowrap;border-right:1px solid rgba(255,255,255,.2)}
+thead th:last-child{border-right:none}
+tbody tr{border-bottom:1.5px solid #dde6f0;background:#fff;transition:background .15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#f5f8ff}
+tbody td{padding:11px 12px;color:#1a2a4a;vertical-align:middle;border-right:1px solid #dde6f0}
+tbody td:last-child{border-right:none}
+
+/* ── ACTION BUTTONS ── */
+.action-btns{display:flex;align-items:center;gap:8px}
+.action-btn{width:30px;height:30px;border-radius:6px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .15s,transform .1s;position:relative}
+.action-btn:hover{opacity:.8;transform:scale(1.1)}
+.action-btn.view{background:#e8f0fb;color:#2056a8}
+.action-btn.edit{background:#fff8e8;color:#e67e22}
+.action-btn.del{background:#fdecea;color:#e74c3c}
+.action-btn .tooltip{display:none;position:absolute;bottom:36px;left:50%;transform:translateX(-50%);background:#333;color:#fff;font-size:.72rem;white-space:nowrap;padding:4px 8px;border-radius:4px;pointer-events:none;z-index:100}
+.action-btn .tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#333}
+.action-btn:hover .tooltip{display:block}
+
+/* ── CHI TIẾT PAGE ── */
+.chi-tiet-page{display:none;flex-direction:column;height:100%}
+.chi-tiet-page.show{display:flex}
+.chi-tiet-header{font-size:1.1rem;font-weight:700;color:#2056a8;letter-spacing:.4px;text-transform:uppercase;padding-bottom:12px;border-bottom:1.5px solid #e0e8f5;margin-bottom:20px}
+.btn-back{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;background:#f0f4f8;color:#1a2a4a;font-size:.85rem;font-weight:600;font-family:'Segoe UI','Arial',sans-serif;border:1px solid #dde3ee;cursor:pointer;margin-bottom:16px;transition:background .15s}
+.btn-back:hover{background:#e0e8f5}
+
+/* ── DELETE MODAL ── */
+.del-modal-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.35);align-items:center;justify-content:center}
+.del-modal-overlay.open{display:flex}
+.del-modal-box{background:#fff;border-radius:10px;width:min(520px,92vw);overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.2);animation:popIn .2s cubic-bezier(.34,1.56,.64,1)}
+.del-modal-header{background:#2056a8;display:flex;align-items:center;justify-content:space-between;padding:14px 22px}
+.del-modal-title{font-size:.9rem;font-weight:700;color:#fff;letter-spacing:.8px;text-transform:uppercase}
+.del-modal-close{background:none;border:none;color:#fff;cursor:pointer;font-size:1.3rem;opacity:.85}
+.del-modal-close:hover{opacity:1}
+.del-modal-body{display:flex;align-items:center;gap:18px;padding:30px 28px}
+.del-modal-icon{width:52px;height:52px;flex-shrink:0;border-radius:50%;border:2.5px solid #555;display:flex;align-items:center;justify-content:center;color:#555;font-size:1.4rem;font-weight:700}
+.del-modal-msg{font-size:.92rem;color:#222;font-weight:500;line-height:1.5}
+.del-modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:14px 24px 22px}
+
+/* ── ĐỐI TƯỢNG TABLE ── */
+.dt-table-wrap{margin-top:16px;border-radius:8px;border:1.5px solid #c8d6ea;overflow:hidden;display:none}
+.dt-table-wrap.show{display:block}
+
+/* ── XEM CHI TIẾT ĐỐI TƯỢNG PAGE ── */
+.xct-page{display:none;flex-direction:column;height:100%}
+.xct-page.show{display:flex}
+.sort-icon{font-size:.7rem;margin-left:3px;opacity:.7}
+.xct-table-wrap{margin-top:16px;border-radius:8px;border:1.5px solid #c8d6ea;overflow:hidden}
+.xct-table-wrap table{width:100%;border-collapse:collapse;font-size:.85rem}
+.xct-table-wrap thead tr{background:#fff;border-bottom:2px solid #c8d6ea}
+.xct-table-wrap thead th{padding:11px 12px;color:#1a2a4a;font-weight:700;font-size:.82rem;text-align:left;white-space:nowrap;border-right:1px solid #e4eaf4}
+.xct-table-wrap thead th:last-child{border-right:none}
+.xct-table-wrap tbody tr{border-bottom:1px solid #e4eaf4;background:#fff;transition:background .15s}
+.xct-table-wrap tbody tr:last-child{border-bottom:none}
+.xct-table-wrap tbody tr:hover{background:#f5f8ff}
+.xct-table-wrap tbody td{padding:11px 12px;color:#1a2a4a;vertical-align:middle;border-right:1px solid #e4eaf4}
+.xct-table-wrap tbody td:last-child{border-right:none}
+.btn-plus{width:36px;height:36px;border-radius:6px;background:#2056a8;color:#fff;border:none;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s}
+.btn-plus:hover{opacity:.85}
+
+/* ── EXTRA PAGES ── */
+.pb-page{display:none;flex-direction:column}
+.pb-page.show{display:flex}
+.cs-page{display:none;flex-direction:column}
+.cs-page.show{display:flex}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-brand">
+        <div class="brand-logo" onclick="window.location.href='Dashboard.html'" title="Về trang chủ">
+          <!-- ===== ĐỔI LOGO TẠI ĐÂY ===== -->
+          <img src="./Hinhanh/logo.png" alt="Logo"/>
+          <!-- ============================= -->
+        </div>
+        <div class="brand-name">MIS – UDN</div>
+      </div>
+      <div class="thi-dua-label">THI ĐUA KHEN THƯỞNG</div>
+    </div>
+
+    <div class="sidebar-section-label">Dashboard</div>
+    <div class="nav-item" onclick="window.location.href='Dashboard.html'">
+      <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+      Dashboard
+    </div>
+
+    <div class="sidebar-section-label">Đợt đánh giá</div>
+    <div class="nav-item active" onclick="setActive(this);showMainPage()">
+      <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+      Đánh giá cá nhân
+    </div>
+    <div class="nav-item" onclick="window.location.href='Danhgiaphongban.html'">
+      <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+      Đánh giá phòng ban/trung tâm
+    </div>
+    <div class="nav-item" onclick="window.location.href='Danhgiacosodaotao.html'">
+      <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+      Đánh giá cơ sở đào tạo
+    </div>
+    <div class="nav-item" onclick="window.location.href='Phieudanhgia.html'">
+      <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+      Phiếu đánh giá
+    </div>
+
+    <div class="sidebar-section-label">Quản lý danh mục</div>
+    <div class="nav-item" onclick="window.location.href='Tieuchi.html'">
+      <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></span>
+      Tiêu chí
+    </div>
+    <div class="nav-item" onclick="window.location.href='Loaitieuchi.html'">
+      <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>
+      Loại tiêu chí
+    </div>
+    <div class="nav-item" onclick="window.location.href='Linhvucdanhgia.html'">
+      <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg></span>
+      Lĩnh vực đánh giá
+    </div>
+
+    <div class="sidebar-section-label">Thống kê</div>
+    <div class="nav-item" onclick="setActive(this)">
+      <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+      Báo cáo – Thống kê
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main">
+    <header class="topbar">
+      <button class="topbar-menu" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar-title">Hệ thống đánh giá – Đại học Đà Nẵng</div>
+      <!-- ===== ĐỔI TÊN NGƯỜI DÙNG TẠI ĐÂY ===== -->
+      <div class="user-profile" onclick="document.getElementById('logoutModal').classList.add('open')" title="Đăng xuất">
+        <span class="user-name">Trần Văn A</span>
+        <div class="user-avatar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+        </div>
+      </div>
+      <!-- ========================================= -->
+    </header>
+
+    <div class="content" id="mainContent">
+      <!-- Filter bar -->
+      <div class="filter-bar">
+        <span class="filter-label">Cơ sở giáo dục</span>
+        <select class="filter-select">
+          <option value="">-- Chọn cơ sở giáo dục --</option>
+          <!-- ===== NHẬP TÊN CƠ SỞ GIÁO DỤC TẠI ĐÂY =====
+          <option>Tên cơ sở giáo dục</option>
+          ================================================= -->
+          <option>ĐẠI HỌC ĐÀ NẴNG</option>
+          <option>TRƯỜNG ĐẠI HỌC KINH TẾ - ĐẠI HỌC ĐÀ NẴNG </option>
+          <option>TRƯỜNG ĐẠI HỌC BÁCH KHOA - ĐẠI HỌC ĐÀ NẴNG</option>
+          <Option>TRƯỜNG ĐẠI HỌC SƯ PHẠM - ĐẠI HỌC ĐÀ NẴNG</Option>
+          <Option>TRƯỜNG ĐẠI HỌC SƯ PHẠM KỸ THUẬT - ĐẠI HỌC ĐÀ NẴNG</Option>
+          <Option>TRƯỜNG ĐẠI HỌC NGOẠI NGỮ - ĐẠI HỌC ĐÀ NẴNG</Option>
+          <Option>TRƯỜNG ĐẠI HỌC Y DƯỢC - ĐẠI HỌC ĐÀ NẴNG</Option>
+          <Option>TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG VIỆT-HÀN</Option>
+        </select>
+        <div class="filter-divider"></div>
+        <span class="filter-label">Năm</span>
+        <select class="filter-select filter-year">
+          <option value="">-- Năm --</option>
+          <!-- ===== NHẬP NĂM TẠI ĐÂY =====
+          <option>2026</option>
+          ================================= -->
+          <option>2025</option>
+          <option>2024</option>
+          <option>2023</option>
+          <option>2022</option>
+        </select>
+      </div>
+
+      <!-- Page title -->
+      <div class="page-title">Danh sách kỳ đánh giá</div>
+
+      <!-- Add button -->
+      <button class="btn-add" onclick="openAddModal()">+ Thêm mới</button>
+
+      <!-- Table -->
+      <div class="table-wrap" id="dataTable">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:50px">STT</th>
+              <th>Tên kỳ đánh giá</th>
+              <th>Mục đánh giá</th>
+              <th>Phiếu đánh giá</th>
+              <th>Ngày bắt đầu</th>
+              <th>Ngày kết thúc</th>
+              <th>Trạng thái</th>
+              <th style="width:110px">Chức năng</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div><!-- end mainContent -->
+
+    <!-- CHI TIẾT KỲ ĐÁNH GIÁ PAGE -->
+    <div class="content chi-tiet-page" id="chiTietPage">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <button onclick="closeChiTiet()" title="Quay lại" style="background:none;border:none;cursor:pointer;color:#2056a8;padding:2px 4px;display:flex;align-items:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2056a8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="chi-tiet-header" id="chiTietTitle" style="margin-bottom:0;border-bottom:none;padding-bottom:0">Chi tiết kỳ đánh giá</div>
+      </div>
+      <div style="border-bottom:1.5px solid #e0e8f5;margin-bottom:20px;margin-top:10px"></div>
+      <div><button class="btn-add" onclick="openDtModal()">+ Thêm đối tượng đánh giá</button></div>
+
+      <!-- Bảng đối tượng đánh giá -->
+      <div class="dt-table-wrap" id="dtTable">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:50px">STT</th>
+              <th>Mã đối tượng</th>
+              <th>Tên đối tượng</th>
+              <th>Người xét duyệt</th>
+              <th>Trạng thái đánh giá</th>
+              <th style="width:110px">Chức năng</th>
+            </tr>
+          </thead>
+          <tbody id="dtTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- XEM CHI TIẾT ĐỐI TƯỢNG PAGE -->
+    <div class="content xct-page" id="xctPage">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <button onclick="closeXct()" title="Quay lại" style="background:none;border:none;cursor:pointer;color:#2056a8;padding:2px 4px;display:flex;align-items:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2056a8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="chi-tiet-header" id="xctTitle" style="margin-bottom:0;border-bottom:none;padding-bottom:0">Chi tiết đối tượng đánh giá</div>
+      </div>
+      <div style="border-bottom:1.5px solid #e0e8f5;margin-bottom:20px;margin-top:10px"></div>
+      <div class="xct-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:100px">Mã tiêu chí</th>
+              <th>Tên tiêu chí <span class="sort-icon">↑↓</span></th>
+              <th style="width:80px">Thang điểm</th>
+              <th style="width:80px">Điểm tự chấm</th>
+              <th style="width:80px">Điểm xét duyệt</th>
+              <th style="width:120px">Trạng thái <span class="sort-icon">↑↓</span></th>
+              <th style="width:90px">Chức năng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>.</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <!-- ===== NHẬP NỘI DUNG TIÊU CHÍ TẠI ĐÂY =====
+            Sao chép và thay nội dung:
+            <tr>
+              <td>1.2</td>
+              <td>Tên tiêu chí...</td>
+              <td style="text-align:center">10</td>
+              <td style="text-align:center">0</td>
+              <td style="text-align:center">0</td>
+              <td>Chưa tự đánh giá</td>
+              <td></td>
+            </tr>
+            ================================================= -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ ĐÁNH GIÁ PHÒNG BAN/TRUNG TÂM PAGE ══ -->
+    <div class="content pb-page" id="pbPage">
+      <div class="filter-bar" style="margin-bottom:20px">
+        <span class="filter-label">Cơ sở giáo dục</span>
+        <select class="filter-select">
+          <option value="">-- Chọn cơ sở giáo dục --</option>
+          <option>Tên cơ sở 1</option><option>Tên cơ sở 2</option><option>Tên cơ sở 3</option>
+        </select>
+        <div class="filter-divider"></div>
+        <span class="filter-label">Năm</span>
+        <select class="filter-select filter-year">
+          <option value="">-- Năm --</option>
+          <option>2025</option><option>2024</option><option>2023</option>
+        </select>
+      </div>
+      <div class="page-title">Danh sách kỳ đánh giá</div>
+      <div><button class="btn-add" onclick="openPbAddModal()">+ Thêm mới</button></div>
+      <div class="table-wrap" id="pbDataTable">
+        <table>
+          <thead><tr>
+            <th style="width:50px">STT</th>
+            <th>Tên kỳ đánh giá</th><th>Mục đánh giá</th><th>Phiếu đánh giá</th>
+            <th>Ngày bắt đầu</th><th>Ngày kết thúc</th><th>Trạng thái</th>
+            <th style="width:110px">Chức năng</th>
+          </tr></thead>
+          <tbody id="pbTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Chi tiết kỳ đánh giá – Phòng ban -->
+    <div class="content chi-tiet-page" id="pbChiTietPage">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <button onclick="closePbChiTiet()" style="background:none;border:none;cursor:pointer;color:#2056a8;padding:2px 4px;display:flex;align-items:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2056a8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="chi-tiet-header" id="pbChiTietTitle" style="margin-bottom:0;border-bottom:none;padding-bottom:0">Chi tiết kỳ đánh giá</div>
+      </div>
+      <div style="border-bottom:1.5px solid #e0e8f5;margin-bottom:20px;margin-top:10px"></div>
+      <div><button class="btn-add" onclick="openPbDtModal()">+ Thêm đối tượng đánh giá</button></div>
+      <div class="dt-table-wrap" id="pbDtTable">
+        <table>
+          <thead><tr>
+            <th style="width:50px">STT</th><th>Mã đối tượng</th><th>Tên đối tượng</th>
+            <th>Người xét duyệt</th><th>Trạng thái đánh giá</th>
+            <th style="width:110px">Chức năng</th>
+          </tr></thead>
+          <tbody id="pbDtTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ ĐÁNH GIÁ CƠ SỞ ĐÀO TẠO PAGE ══ -->
+    <div class="content cs-page" id="csPage">
+      <div class="filter-bar" style="margin-bottom:20px">
+        <span class="filter-label">Cơ sở giáo dục</span>
+        <select class="filter-select">
+          <option value="">-- Chọn cơ sở giáo dục --</option>
+          <option>Tên cơ sở 1</option><option>Tên cơ sở 2</option><option>Tên cơ sở 3</option>
+        </select>
+        <div class="filter-divider"></div>
+        <span class="filter-label">Năm</span>
+        <select class="filter-select filter-year">
+          <option value="">-- Năm --</option>
+          <option>2025</option><option>2024</option><option>2023</option>
+        </select>
+      </div>
+      <div class="page-title">Danh sách kỳ đánh giá</div>
+      <div><button class="btn-add" onclick="openCsAddModal()">+ Thêm mới</button></div>
+      <div class="table-wrap" id="csDataTable">
+        <table>
+          <thead><tr>
+            <th style="width:50px">STT</th>
+            <th>Tên kỳ đánh giá</th><th>Mục đánh giá</th><th>Phiếu đánh giá</th>
+            <th>Ngày bắt đầu</th><th>Ngày kết thúc</th><th>Trạng thái</th>
+            <th style="width:110px">Chức năng</th>
+          </tr></thead>
+          <tbody id="csTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Chi tiết kỳ đánh giá – Cơ sở -->
+    <div class="content chi-tiet-page" id="csChiTietPage">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <button onclick="closeCsChiTiet()" style="background:none;border:none;cursor:pointer;color:#2056a8;padding:2px 4px;display:flex;align-items:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2056a8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="chi-tiet-header" id="csChiTietTitle" style="margin-bottom:0;border-bottom:none;padding-bottom:0">Chi tiết kỳ đánh giá</div>
+      </div>
+      <div style="border-bottom:1.5px solid #e0e8f5;margin-bottom:20px;margin-top:10px"></div>
+      <div><button class="btn-add" onclick="openCsDtModal()">+ Thêm đối tượng đánh giá</button></div>
+      <div class="dt-table-wrap" id="csDtTable">
+        <table>
+          <thead><tr>
+            <th style="width:50px">STT</th><th>Mã đối tượng</th><th>Tên đối tượng</th>
+            <th>Người xét duyệt</th><th>Trạng thái đánh giá</th>
+            <th style="width:110px">Chức năng</th>
+          </tr></thead>
+          <tbody id="csDtTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══ THÊM MỚI MODAL ══ -->
+<div class="add-modal-overlay" id="addModal">
+  <div class="add-modal-box">
+    <div class="add-modal-header">
+      <span class="add-modal-title">Thêm mới kỳ đánh giá</span>
+      <button class="add-modal-close" onclick="closeAddModal()">&#x2715;</button>
+    </div>
+    <div class="add-modal-body">
+      <div class="form-row">
+        <span class="form-label">Cơ sở giáo dục</span>
+        <span class="form-value">ĐẠI HỌC ĐÀ NẴNG</span>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Mục đánh giá</label>
+        <div>
+          <select class="form-select" id="f-muc" oninput="clearErr('f-muc','e-muc')">
+            <option value="">Chọn mục đánh giá</option>
+            <!-- ===== NHẬP MỤC ĐÁNH GIÁ TẠI ĐÂY ===== -->
+            <option>Chuyên viên hành chính</option>
+            <option>Giảng viên</option>
+            <option>Lãnh đạo</option>
+          </select>
+          <div class="form-error" id="e-muc">Vui lòng chọn mục đánh giá</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Phiếu đánh giá</label>
+        <div>
+          <select class="form-select" id="f-phieu" oninput="clearErr('f-phieu','e-phieu')">
+            <option value="">Chọn phiếu đánh giá</option>
+            <!-- ===== NHẬP PHIẾU ĐÁNH GIÁ TẠI ĐÂY ===== -->
+            <option>Đánh giá cá nhân</option>
+            <option>Đánh giá phòng ban</option>
+          </select>
+          <div class="form-error" id="e-phieu">Vui lòng chọn phiếu đánh giá</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Tên kỳ đánh giá</label>
+        <div>
+          <input class="form-input" type="text" id="f-ten" placeholder="Nhập tên kỳ đánh giá" oninput="clearErr('f-ten','e-ten')"/>
+          <div class="form-error" id="e-ten">Vui lòng nhập tên kỳ đánh giá</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Ngày bắt đầu</label>
+        <div>
+          <input class="form-input" type="date" id="f-batdau" oninput="clearErr('f-batdau','e-batdau')"/>
+          <div class="form-error" id="e-batdau">Vui lòng chọn ngày bắt đầu</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Ngày kết thúc</label>
+        <div>
+          <input class="form-input" type="date" id="f-ketthuc" oninput="clearErr('f-ketthuc','e-ketthuc')"/>
+          <div class="form-error" id="e-ketthuc">Vui lòng chọn ngày kết thúc</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Trạng thái</label>
+        <div>
+          <select class="form-select" id="f-trangthai" oninput="clearErr('f-trangthai','e-trangthai')">
+            <option value="">Chọn trạng thái</option>
+            <!-- ===== NHẬP TRẠNG THÁI TẠI ĐÂY ===== -->
+            <option>Đánh giá</option>
+            <option>Đang mở</option>
+            <option>Đã đóng</option>
+          </select>
+          <div class="form-error" id="e-trangthai">Vui lòng chọn trạng thái</div>
+        </div>
+      </div>
+    </div>
+    <div class="add-modal-footer">
+      <button class="modal-btn cancel" onclick="closeAddModal()">&#x2715; Đóng</button>
+      <button class="modal-btn confirm" onclick="saveRecord()">Lưu lại</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ══ CHỈNH SỬA MODAL ══ -->
+<div class="add-modal-overlay" id="editModal">
+  <div class="add-modal-box">
+    <div class="add-modal-header">
+      <span class="add-modal-title">Chỉnh sửa kỳ đánh giá</span>
+      <button class="add-modal-close" onclick="closeEditModal()">&#x2715;</button>
+    </div>
+    <div class="add-modal-body">
+      <div class="form-row">
+        <span class="form-label">Cơ sở giáo dục</span>
+        <span class="form-value">ĐẠI HỌC ĐÀ NẴNG</span>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Mục đánh giá</label>
+        <div>
+          <select class="form-select" id="e-f-muc">
+            <option value="">Chọn mục đánh giá</option>
+            <option>Chuyên viên hành chính</option>
+            <option>Giảng viên</option>
+            <option>Lãnh đạo</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Phiếu đánh giá</label>
+        <div>
+          <select class="form-select" id="e-f-phieu">
+            <option value="">Chọn phiếu đánh giá</option>
+            <option>Đánh giá cá nhân</option>
+            <option>Đánh giá phòng ban</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Tên kỳ đánh giá</label>
+        <div>
+          <input class="form-input" type="text" id="e-f-ten" placeholder="Nhập tên kỳ đánh giá"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Ngày bắt đầu</label>
+        <div>
+          <input class="form-input" type="date" id="e-f-batdau"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Ngày kết thúc</label>
+        <div>
+          <input class="form-input" type="date" id="e-f-ketthuc"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Trạng thái</label>
+        <div>
+          <select class="form-select" id="e-f-trangthai">
+            <option value="">Chọn trạng thái</option>
+            <option>Đánh giá</option>
+            <option>Đang mở</option>
+            <option>Đã đóng</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="add-modal-footer">
+      <button class="modal-btn cancel" onclick="closeEditModal()">&#x2715; Đóng</button>
+      <button class="modal-btn confirm" onclick="saveEdit()">Lưu lại</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ XOÁ MODAL ══ -->
+<div class="del-modal-overlay" id="delModal">
+  <div class="del-modal-box">
+    <div class="del-modal-header">
+      <span class="del-modal-title">Xoá kỳ đánh giá</span>
+      <button class="del-modal-close" onclick="closeDelModal()">&#x2715;</button>
+    </div>
+    <div class="del-modal-body">
+      <div class="del-modal-icon">?</div>
+      <div class="del-modal-msg" id="delModalMsg">Bạn có chắc chắn muốn xoá Kỳ đánh giá này?</div>
+    </div>
+    <div class="del-modal-footer">
+      <button class="modal-btn cancel" onclick="closeDelModal()">&#x2715; Huỷ</button>
+      <button class="modal-btn confirm" style="background:#e74c3c;border-color:#e74c3c" onclick="confirmDelete()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        Xoá
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ THÊM ĐỐI TƯỢNG MODAL ══ -->
+<div class="add-modal-overlay" id="dtModal">
+  <div class="add-modal-box">
+    <div class="add-modal-header" style="position:relative">
+      <span class="add-modal-title">Thêm đối tượng đánh giá</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="color:rgba(255,255,255,.7);font-size:1rem">&#8964;</span>
+        <button class="add-modal-close" onclick="closeDtModal()">&#x2715;</button>
+      </div>
+    </div>
+    <div class="add-modal-body">
+      <div class="form-row">
+        <span class="form-label">Cơ sở giáo dục</span>
+        <span class="form-value">ĐẠI HỌC ĐÀ NẴNG</span>
+      </div>
+      <div class="form-row">
+        <span class="form-label">Kỳ đánh giá</span>
+        <span class="form-value" id="dtKyDanhGia"></span>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Phòng ban</label>
+        <div>
+          <select class="form-select" id="dt-phongban" oninput="clearDtErr('dt-phongban','dte-phongban')">
+            <option value="">Chọn phòng ban</option>
+            <!-- ===== NHẬP PHÒNG BAN TẠI ĐÂY ===== -->
+            <option>Phòng Tổ chức – Hành chính</option>
+            <option>Phòng Đào tạo</option>
+            <option>Phòng Kế hoạch – Tài chính</option>
+            <option>Phòng Công tác sinh viên</option>
+          </select>
+          <div class="form-error" id="dte-phongban">Vui lòng chọn phòng ban</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Cán bộ</label>
+        <div>
+          <select class="form-select" id="dt-canbo" oninput="clearDtErr('dt-canbo','dte-canbo')">
+            <option value="">Chọn cán bộ</option>
+            <!-- ===== NHẬP CÁN BỘ TẠI ĐÂY ===== -->
+            <option value="Trần Văn A|D2504020.960100">Trần Văn A</option>
+            <option value="Nguyễn Thị B|D2504020.960101">Nguyễn Thị B</option>
+            <option value="Lê Văn C|D2504020.960102">Lê Văn C</option>
+          </select>
+          <div class="form-error" id="dte-canbo">Vui lòng chọn cán bộ</div>
+        </div>
+      </div>
+    </div>
+    <div class="add-modal-footer">
+      <button class="modal-btn cancel" onclick="closeDtModal()">&#x2715; Đóng</button>
+      <button class="modal-btn confirm" onclick="saveDt()">Lưu lại</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ XOÁ ĐỐI TƯỢNG MODAL ══ -->
+<div class="del-modal-overlay" id="delDtModal">
+  <div class="del-modal-box">
+    <div class="del-modal-header">
+      <span class="del-modal-title">Xoá đối tượng đánh giá</span>
+      <button class="del-modal-close" onclick="closeDelDtModal()">&#x2715;</button>
+    </div>
+    <div class="del-modal-body">
+      <div class="del-modal-icon">?</div>
+      <div class="del-modal-msg" id="delDtMsg">Bạn có chắc chắn muốn xoá đối tượng đánh giá này?</div>
+    </div>
+    <div class="del-modal-footer">
+      <button class="modal-btn cancel" onclick="closeDelDtModal()">&#x2715; Huỷ</button>
+      <button class="modal-btn confirm" style="background:#e74c3c;border-color:#e74c3c" onclick="confirmDelDt()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        Xoá
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ THÊM NGƯỜI XÉT DUYỆT MODAL ══ -->
+<div class="add-modal-overlay" id="nxdModal">
+  <div class="add-modal-box">
+    <div class="add-modal-header">
+      <span class="add-modal-title">Thêm người xét duyệt</span>
+      <button class="add-modal-close" onclick="closeNxdModal()">&#x2715;</button>
+    </div>
+    <div class="add-modal-body">
+      <div class="form-row">
+        <span class="form-label">Cơ sở giáo dục</span>
+        <span class="form-value">ĐẠI HỌC ĐÀ NẴNG</span>
+      </div>
+      <div class="form-row">
+        <span class="form-label">Kỳ đánh giá</span>
+        <span class="form-value" id="nxdKyDanhGia"></span>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Phòng ban</label>
+        <div>
+          <select class="form-select" id="nxd-phongban" oninput="clearNxdErr('nxd-phongban','nxde-phongban')">
+            <option value="">Chọn phòng ban</option>
+            <option>Phòng Tổ chức – Hành chính</option>
+            <option>Phòng Đào tạo</option>
+            <option>Phòng Kế hoạch – Tài chính</option>
+            <option>Phòng Công tác sinh viên</option>
+          </select>
+          <div class="form-error" id="nxde-phongban">Vui lòng chọn phòng ban</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Cán bộ</label>
+        <div>
+          <select class="form-select" id="nxd-canbo" oninput="clearNxdErr('nxd-canbo','nxde-canbo')">
+            <option value="">Chọn cán bộ</option>
+            <option value="Trần Văn A">Trần Văn A</option>
+            <option value="Nguyễn Thị B">Nguyễn Thị B</option>
+            <option value="Lê Văn C">Lê Văn C</option>
+          </select>
+          <div class="form-error" id="nxde-canbo">Vui lòng chọn cán bộ</div>
+        </div>
+      </div>
+    </div>
+    <div class="add-modal-footer">
+      <button class="modal-btn cancel" onclick="closeNxdModal()">&#x2715; Đóng</button>
+      <button class="modal-btn confirm" onclick="saveNxd()">Lưu lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- Logout Modal -->
+<div class="modal-overlay" id="logoutModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-header-title">Đăng xuất</span>
+      <button class="modal-close" onclick="document.getElementById('logoutModal').classList.remove('open')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-icon">?</div>
+      <div class="modal-msg">Bạn chắc chắn muốn đăng xuất?</div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="document.getElementById('logoutModal').classList.remove('open')">&#x2715; Huỷ</button>
+      <button class="modal-btn confirm" onclick="window.location.href='index.html'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        Đăng xuất
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+let records = [];
+
+function openAddModal(){
+  document.getElementById('addModal').classList.add('open');
+  ['f-muc','f-phieu','f-ten','f-batdau','f-ketthuc','f-trangthai'].forEach(id=>{
+    document.getElementById(id).value='';
+    document.getElementById(id).classList.remove('error');
+  });
+  ['e-muc','e-phieu','e-ten','e-batdau','e-ketthuc','e-trangthai'].forEach(id=>{
+    document.getElementById(id).classList.remove('show');
+  });
+}
+function closeAddModal(){
+  document.getElementById('addModal').classList.remove('open');
+}
+function formatDate(d){
+  if(!d) return '';
+  const p = d.split('-');
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+function showErr(inputId, errId){
+  const el = document.getElementById(inputId);
+  const err = document.getElementById(errId);
+  if(el) el.classList.add('error');
+  if(err) err.classList.add('show');
+}
+function clearErr(inputId, errId){
+  const el = document.getElementById(inputId);
+  const err = document.getElementById(errId);
+  if(el) el.classList.remove('error');
+  if(err) err.classList.remove('show');
+}
+function saveRecord(){
+  // Check if saving to generic target (pb/cs)
+  if(window._currentAddTarget){
+    const ten=document.getElementById('f-ten').value.trim();
+    const muc=document.getElementById('f-muc').value;
+    const phieu=document.getElementById('f-phieu').value;
+    const batdau=document.getElementById('f-batdau').value;
+    const ketthuc=document.getElementById('f-ketthuc').value;
+    const trangthai=document.getElementById('f-trangthai').value;
+    let valid=true;
+    if(!muc){showErr('f-muc','e-muc');valid=false;} else clearErr('f-muc','e-muc');
+    if(!phieu){showErr('f-phieu','e-phieu');valid=false;} else clearErr('f-phieu','e-phieu');
+    if(!ten){showErr('f-ten','e-ten');valid=false;} else clearErr('f-ten','e-ten');
+    if(!batdau){showErr('f-batdau','e-batdau');valid=false;} else clearErr('f-batdau','e-batdau');
+    if(!ketthuc){showErr('f-ketthuc','e-ketthuc');valid=false;} else clearErr('f-ketthuc','e-ketthuc');
+    if(!trangthai){showErr('f-trangthai','e-trangthai');valid=false;} else clearErr('f-trangthai','e-trangthai');
+    if(!valid) return;
+    window._currentAddTarget.arr.push({ten,muc,phieu,batdau,ketthuc,trangthai});
+    window._currentAddTarget.renderFn();
+    window._currentAddTarget=null;
+    closeAddModal();
+    return;
+  }
+  // default: save to main records
+  const ten = document.getElementById('f-ten').value.trim();
+  const muc = document.getElementById('f-muc').value;
+  const phieu = document.getElementById('f-phieu').value;
+  const batdau = document.getElementById('f-batdau').value;
+  const ketthuc = document.getElementById('f-ketthuc').value;
+  const trangthai = document.getElementById('f-trangthai').value;
+  let valid = true;
+  if(!muc){showErr('f-muc','e-muc'); valid=false;} else clearErr('f-muc','e-muc');
+  if(!phieu){showErr('f-phieu','e-phieu'); valid=false;} else clearErr('f-phieu','e-phieu');
+  if(!ten){showErr('f-ten','e-ten'); valid=false;} else clearErr('f-ten','e-ten');
+  if(!batdau){showErr('f-batdau','e-batdau'); valid=false;} else clearErr('f-batdau','e-batdau');
+  if(!ketthuc){showErr('f-ketthuc','e-ketthuc'); valid=false;} else clearErr('f-ketthuc','e-ketthuc');
+  if(!trangthai){showErr('f-trangthai','e-trangthai'); valid=false;} else clearErr('f-trangthai','e-trangthai');
+  if(!valid) return;
+  records.push({ten, muc, phieu, batdau, ketthuc, trangthai});
+  renderTable();
+  closeAddModal();
+}
+let deleteIdx = -1;
+let editIdx = -1;
+
+// ── XOÁ ──
+function openDelModal(idx){
+  deleteIdx = idx;
+  document.getElementById('delModalMsg').textContent =
+    'Bạn có chắc chắn muốn xoá Kỳ đánh giá [' + records[idx].ten + '] ?';
+  document.getElementById('delModal').classList.add('open');
+}
+function closeDelModal(){
+  document.getElementById('delModal').classList.remove('open');
+  deleteIdx = -1;
+}
+function confirmDelete(){
+  if(genericDelPfx && genericDelIdx>=0){
+    const arr=genericDelPfx==='pb'?pbRecords:csRecords;
+    arr.splice(genericDelIdx,1);
+    if(genericDelPfx==='pb') renderPbTable(); else renderCsTable();
+    genericDelPfx=''; genericDelIdx=-1;
+    closeDelModal(); return;
+  }
+  if(deleteIdx >= 0){ records.splice(deleteIdx,1); renderTable(); }
+  closeDelModal();
+}
+
+// ── CHỈNH SỬA ──
+function openEditModal(idx){
+  editIdx = idx;
+  const r = records[idx];
+  document.getElementById('e-f-muc').value = r.muc;
+  document.getElementById('e-f-phieu').value = r.phieu;
+  document.getElementById('e-f-ten').value = r.ten;
+  document.getElementById('e-f-batdau').value = r.batdau;
+  document.getElementById('e-f-ketthuc').value = r.ketthuc;
+  document.getElementById('e-f-trangthai').value = r.trangthai;
+  document.getElementById('editModal').classList.add('open');
+}
+function closeEditModal(){
+  document.getElementById('editModal').classList.remove('open');
+  editIdx = -1;
+}
+function saveEdit(){
+  // generic edit
+  if(genericEditPfx && genericEditIdx>=0){
+    const arr=genericEditPfx==='pb'?pbRecords:csRecords;
+    arr[genericEditIdx]={
+      muc:document.getElementById('e-f-muc').value,
+      phieu:document.getElementById('e-f-phieu').value,
+      ten:document.getElementById('e-f-ten').value,
+      batdau:document.getElementById('e-f-batdau').value,
+      ketthuc:document.getElementById('e-f-ketthuc').value,
+      trangthai:document.getElementById('e-f-trangthai').value,
+    };
+    if(genericEditPfx==='pb') renderPbTable(); else renderCsTable();
+    genericEditPfx=''; genericEditIdx=-1;
+    closeEditModal(); return;
+  }
+  if(editIdx < 0) return;
+  records[editIdx] = {
+    muc: document.getElementById('e-f-muc').value,
+    phieu: document.getElementById('e-f-phieu').value,
+    ten: document.getElementById('e-f-ten').value,
+    batdau: document.getElementById('e-f-batdau').value,
+    ketthuc: document.getElementById('e-f-ketthuc').value,
+    trangthai: document.getElementById('e-f-trangthai').value,
+  };
+  renderTable();
+  closeEditModal();
+}
+
+// ── XEM CHI TIẾT ──
+function openChiTiet(idx){
+  const r = records[idx];
+  document.getElementById('chiTietTitle').textContent = 'CHI TIẾT KỲ ĐÁNH GIÁ - ' + r.ten.toUpperCase();
+  hideAllPages();
+  document.getElementById('chiTietPage').classList.add('show');
+}
+function closeChiTiet(){
+  hideAllPages();
+  showMainPage();
+}
+
+function renderTable(){
+  const tbody = document.getElementById('tableBody');
+  const wrap = document.getElementById('dataTable');
+  if(records.length === 0){ wrap.classList.remove('show'); return; }
+  wrap.classList.add('show');
+  tbody.innerHTML = records.map((r,i)=>`
+    <tr>
+      <td style="text-align:center">${i+1}</td>
+      <td>${r.ten}</td>
+      <td>${r.muc}</td>
+      <td>${r.phieu}</td>
+      <td>${formatDate(r.batdau)}</td>
+      <td>${formatDate(r.ketthuc)}</td>
+      <td>${r.trangthai}</td>
+      <td>
+        <div class="action-btns">
+          <button class="action-btn view" onclick="openChiTiet(${i})">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span class="tooltip">Xem chi tiết đợt đánh giá</span>
+          </button>
+          <button class="action-btn edit" onclick="openEditModal(${i})">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span class="tooltip">Chỉnh sửa đợt đánh giá</span>
+          </button>
+          <button class="action-btn del" onclick="openDelModal(${i})">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            <span class="tooltip">Xoá đợt đánh giá</span>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+// ── ALL PAGES ──
+function hideAllPages(){
+  // hide main content
+  const mc = document.getElementById('mainContent');
+  if(mc) mc.style.display='none';
+  // hide all section pages
+  ['chiTietPage','xctPage','pbPage','pbChiTietPage','csPage','csChiTietPage'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.classList.remove('show'); }
+  });
+}
+function showMainPage(){
+  hideAllPages();
+  const mc = document.getElementById('mainContent');
+  if(mc) mc.style.display='';
+}
+function showSectionPage(section){
+  hideAllPages();
+  if(section==='pb'){ const p=document.getElementById('pbPage'); if(p) p.classList.add('show'); }
+  if(section==='cs'){ const p=document.getElementById('csPage'); if(p) p.classList.add('show'); }
+}
+
+// ── PHÒNG BAN ──
+let pbRecords=[], pbDelIdx=-1;
+function makeAddModal(prefix){
+  return {
+    open(onSave){
+      this._onSave=onSave;
+      ['muc','phieu','ten','batdau','ketthuc','trangthai'].forEach(k=>{
+        document.getElementById(prefix+k).value='';
+        document.getElementById(prefix+k).classList.remove('error');
+        document.getElementById('e'+prefix+k).classList.remove('show');
+      });
+      document.getElementById(prefix+'Modal').classList.add('open');
+    },
+    close(){ document.getElementById(prefix+'Modal').classList.remove('open'); },
+    save(){
+      const get=k=>document.getElementById(prefix+k).value.trim();
+      const fields=['muc','phieu','ten','batdau','ketthuc','trangthai'];
+      const msgs={muc:'mục đánh giá',phieu:'phiếu đánh giá',ten:'tên kỳ đánh giá',batdau:'ngày bắt đầu',ketthuc:'ngày kết thúc',trangthai:'trạng thái'};
+      let valid=true;
+      fields.forEach(k=>{
+        if(!get(k)){
+          document.getElementById(prefix+k).classList.add('error');
+          document.getElementById('e'+prefix+k).classList.add('show');
+          valid=false;
+        }
+      });
+      if(!valid) return;
+      this._onSave({muc:get('muc'),phieu:get('phieu'),ten:get('ten'),batdau:get('batdau'),ketthuc:get('ketthuc'),trangthai:get('trangthai')});
+      this.close();
+    }
+  };
+}
+
+function openPbAddModal(){ openGenericAddModal('pb', pbRecords, 'pbDataTable','pbTableBody', renderPbTable); }
+function openCsAddModal(){ openGenericAddModal('cs', csRecords, 'csDataTable','csTableBody', renderCsTable); }
+
+function openGenericAddModal(pfx, arr, tableId, tbodyId, renderFn){
+  // reuse addModal but save to correct array
+  ['f-muc','f-phieu','f-ten','f-batdau','f-ketthuc','f-trangthai'].forEach(id=>{
+    document.getElementById(id).value='';
+    document.getElementById(id).classList.remove('error');
+  });
+  ['e-muc','e-phieu','e-ten','e-batdau','e-ketthuc','e-trangthai'].forEach(id=>{
+    document.getElementById(id).classList.remove('show');
+  });
+  // temporarily redirect save
+  window._currentAddTarget = {arr, tableId, tbodyId, renderFn};
+  document.getElementById('addModal').classList.add('open');
+}
+
+// Patch saveRecord to support generic target
+const _origSaveRecord = typeof saveRecord !== 'undefined' ? saveRecord : null;
+
+function renderPbTable(){ renderGenericTable(pbRecords,'pbDataTable','pbTableBody','pb'); }
+function renderCsTable(){ renderGenericTable(csRecords,'csDataTable','csTableBody','cs'); }
+
+function renderGenericTable(records, tableId, tbodyId, pfx){
+  const wrap=document.getElementById(tableId);
+  const tbody=document.getElementById(tbodyId);
+  if(records.length===0){wrap.classList.remove('show');return;}
+  wrap.classList.add('show');
+  tbody.innerHTML=records.map((r,i)=>`
+    <tr>
+      <td style="text-align:center">${i+1}</td>
+      <td>${r.ten}</td><td>${r.muc}</td><td>${r.phieu}</td>
+      <td>${formatDate(r.batdau)}</td><td>${formatDate(r.ketthuc)}</td>
+      <td>${r.trangthai}</td>
+      <td>
+        <div class="action-btns">
+          <button class="action-btn view" onclick="openGenericChiTiet('${pfx}',${i})">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span class="tooltip">Xem chi tiết đợt đánh giá</span>
+          </button>
+          <button class="action-btn edit" onclick="openGenericEdit('${pfx}',${i})">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span class="tooltip">Chỉnh sửa đợt đánh giá</span>
+          </button>
+          <button class="action-btn del" onclick="openGenericDel('${pfx}',${i})">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            <span class="tooltip">Xoá đợt đánh giá</span>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+// ── Generic Chi tiết ──
+let pbDtRecords=[], csDtRecords=[];
+function openGenericChiTiet(pfx, idx){
+  const records = pfx==='pb'?pbRecords:csRecords;
+  const r=records[idx];
+  const titleId = pfx==='pb'?'pbChiTietTitle':'csChiTietTitle';
+  const pageId = pfx==='pb'?'pbChiTietPage':'csChiTietPage';
+  document.getElementById(titleId).textContent='CHI TIẾT KỲ ĐÁNH GIÁ - '+r.ten.toUpperCase();
+  hideAllPages();
+  document.getElementById(pageId).classList.add('show');
+  window._currentDtPfx = pfx;
+}
+function closePbChiTiet(){ hideAllPages(); document.getElementById('pbPage').classList.add('show'); }
+function closeCsChiTiet(){ hideAllPages(); document.getElementById('csPage').classList.add('show'); }
+
+// ── Generic Doi tuong (reuse dtModal) ──
+function openPbDtModal(){ window._currentDtPfx='pb'; openDtModalFor('pb'); }
+function openCsDtModal(){ window._currentDtPfx='cs'; openDtModalFor('cs'); }
+function openDtModalFor(pfx){
+  const records=pfx==='pb'?pbRecords:csRecords;
+  const titleId=pfx==='pb'?'pbChiTietTitle':'csChiTietTitle';
+  const tenKy=document.getElementById(titleId).textContent.replace('CHI TIẾT KỲ ĐÁNH GIÁ - ','');
+  document.getElementById('dtKyDanhGia').textContent=tenKy;
+  document.getElementById('dt-phongban').value='';
+  document.getElementById('dt-canbo').value='';
+  document.getElementById('dte-phongban').classList.remove('show');
+  document.getElementById('dte-canbo').classList.remove('show');
+  document.getElementById('dt-phongban').classList.remove('error');
+  document.getElementById('dt-canbo').classList.remove('error');
+  document.getElementById('dtModal').classList.add('open');
+}
+
+// ── Generic Edit (reuse editModal) ──
+let genericEditPfx='', genericEditIdx=-1;
+function openGenericEdit(pfx, idx){
+  genericEditPfx=pfx; genericEditIdx=idx;
+  const records=pfx==='pb'?pbRecords:csRecords;
+  const r=records[idx];
+  document.getElementById('e-f-muc').value=r.muc;
+  document.getElementById('e-f-phieu').value=r.phieu;
+  document.getElementById('e-f-ten').value=r.ten;
+  document.getElementById('e-f-batdau').value=r.batdau;
+  document.getElementById('e-f-ketthuc').value=r.ketthuc;
+  document.getElementById('e-f-trangthai').value=r.trangthai;
+  document.getElementById('editModal').classList.add('open');
+}
+
+// ── Generic Delete ──
+let genericDelPfx='', genericDelIdx=-1;
+function openGenericDel(pfx, idx){
+  genericDelPfx=pfx; genericDelIdx=idx;
+  const records=pfx==='pb'?pbRecords:csRecords;
+  document.getElementById('delModalMsg').textContent='Bạn có chắc chắn muốn xoá Kỳ đánh giá ['+records[idx].ten+'] ?';
+  document.getElementById('delModal').classList.add('open');
+}
+
+let csRecords=[];
+
+let dtRecords = [];
+let currentChiTietIdx = -1;
+
+function openDtModal(){
+  // Set ten ky danh gia
+  const tenKy = document.getElementById('chiTietTitle').textContent.replace('CHI TIẾT KỲ ĐÁNH GIÁ - ','');
+  document.getElementById('dtKyDanhGia').textContent = tenKy;
+  document.getElementById('dt-phongban').value='';
+  document.getElementById('dt-canbo').value='';
+  document.getElementById('dte-phongban').classList.remove('show');
+  document.getElementById('dte-canbo').classList.remove('show');
+  document.getElementById('dt-phongban').classList.remove('error');
+  document.getElementById('dt-canbo').classList.remove('error');
+  document.getElementById('dtModal').classList.add('open');
+}
+function closeDtModal(){
+  document.getElementById('dtModal').classList.remove('open');
+}
+function clearDtErr(inputId, errId){
+  document.getElementById(inputId).classList.remove('error');
+  document.getElementById(errId).classList.remove('show');
+}
+function saveDt(){
+  const pb = document.getElementById('dt-phongban').value;
+  const cb = document.getElementById('dt-canbo').value;
+  let valid = true;
+  if(!pb){document.getElementById('dt-phongban').classList.add('error');document.getElementById('dte-phongban').classList.add('show');valid=false;}
+  if(!cb){document.getElementById('dt-canbo').classList.add('error');document.getElementById('dte-canbo').classList.add('show');valid=false;}
+  if(!valid) return;
+
+  const parts = cb.split('|');
+  const ten = parts[0];
+  const ma = parts[1] || ('DT' + Date.now());
+  const pfx = window._currentDtPfx||'';
+  if(pfx==='pb'||pfx==='cs'){
+    const arr=pfx==='pb'?pbDtRecords:csDtRecords;
+    const tbodyId=pfx==='pb'?'pbDtTableBody':'csDtTableBody';
+    const tableId=pfx==='pb'?'pbDtTable':'csDtTable';
+    arr.push({ma, ten, nguoiXetDuyet:'', trangThai:'Đánh giá'});
+    renderGenericDtTable(arr, tableId, tbodyId, pfx);
+  } else {
+    dtRecords.push({ma, ten, nguoiXetDuyet:'', trangThai:'Đánh giá'});
+    renderDtTable();
+  }
+  closeDtModal();
+}
+function deleteDt(idx){
+  dtRecords.splice(idx,1);
+  renderDtTable();
+}
+function renderGenericDtTable(records, tableId, tbodyId, pfx){
+  const wrap=document.getElementById(tableId);
+  const tbody=document.getElementById(tbodyId);
+  if(records.length===0){wrap.classList.remove('show');return;}
+  wrap.classList.add('show');
+  tbody.innerHTML=records.map((r,i)=>`
+    <tr>
+      <td style="text-align:center">${i+1}</td>
+      <td>${r.ma}</td><td>${r.ten}</td><td>${r.nguoiXetDuyet||''}</td>
+      <td>${r.trangThai}</td>
+      <td>
+        <div class="action-btns">
+          <button class="action-btn view">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span class="tooltip">Xem chi tiết</span>
+          </button>
+          <button class="action-btn edit" style="background:#e8f5e9;color:#27ae60">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            <span class="tooltip">Thêm người xét duyệt</span>
+          </button>
+          <button class="action-btn del">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            <span class="tooltip">Xoá đối tượng đánh giá</span>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+function renderDtTable(){
+  const tbody = document.getElementById('dtTableBody');
+  const wrap = document.getElementById('dtTable');
+  if(dtRecords.length===0){wrap.classList.remove('show');return;}
+  wrap.classList.add('show');
+  tbody.innerHTML = dtRecords.map((r,i)=>`
+    <tr>
+      <td style="text-align:center">${i+1}</td>
+      <td>${r.ma}</td>
+      <td>${r.ten}</td>
+      <td>${r.nguoiXetDuyet||''}</td>
+      <td>${r.trangThai}</td>
+      <td>
+        <div class="action-btns">
+          <button class="action-btn view" onclick="openXct(${i})">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span class="tooltip">Xem chi tiết</span>
+          </button>
+          <button class="action-btn edit" style="background:#e8f5e9;color:#27ae60" onclick="openNxdModal(${i})">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            <span class="tooltip">Thêm người xét duyệt</span>
+          </button>
+          <button class="action-btn del" onclick="openDelDtModal(${i})">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            <span class="tooltip">Xoá đối tượng đánh giá</span>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+let delDtIdx = -1;
+let nxdIdx = -1;
+
+// ── XEM CHI TIẾT ĐỐI TƯỢNG ──
+function openXct(idx){
+  const r = dtRecords[idx];
+  document.getElementById('xctTitle').textContent = 'CHI TIẾT ĐỐI TƯỢNG – ' + r.ten.toUpperCase();
+  hideAllPages();
+  document.getElementById('xctPage').classList.add('show');
+}
+function closeXct(){
+  hideAllPages();
+  document.getElementById('chiTietPage').classList.add('show');
+}
+
+// ── XOÁ ĐỐI TƯỢNG ──
+function openDelDtModal(idx){
+  delDtIdx = idx;
+  document.getElementById('delDtMsg').textContent =
+    'Bạn có chắc chắn muốn xoá đối tượng đánh giá [' + dtRecords[idx].ten + '] ?';
+  document.getElementById('delDtModal').classList.add('open');
+}
+function closeDelDtModal(){
+  document.getElementById('delDtModal').classList.remove('open');
+  delDtIdx = -1;
+}
+function confirmDelDt(){
+  if(delDtIdx >= 0){ dtRecords.splice(delDtIdx,1); renderDtTable(); }
+  closeDelDtModal();
+}
+
+// ── THÊM NGƯỜI XÉT DUYỆT ──
+function openNxdModal(idx){
+  nxdIdx = idx;
+  const tenKy = document.getElementById('chiTietTitle').textContent.replace('CHI TIẾT KỲ ĐÁNH GIÁ - ','');
+  document.getElementById('nxdKyDanhGia').textContent = tenKy;
+  document.getElementById('nxd-phongban').value='';
+  document.getElementById('nxd-canbo').value='';
+  document.getElementById('nxde-phongban').classList.remove('show');
+  document.getElementById('nxde-canbo').classList.remove('show');
+  document.getElementById('nxd-phongban').classList.remove('error');
+  document.getElementById('nxd-canbo').classList.remove('error');
+  document.getElementById('nxdModal').classList.add('open');
+}
+function closeNxdModal(){
+  document.getElementById('nxdModal').classList.remove('open');
+  nxdIdx = -1;
+}
+function clearNxdErr(inputId, errId){
+  document.getElementById(inputId).classList.remove('error');
+  document.getElementById(errId).classList.remove('show');
+}
+function saveNxd(){
+  const pb = document.getElementById('nxd-phongban').value;
+  const cb = document.getElementById('nxd-canbo').value;
+  let valid = true;
+  if(!pb){document.getElementById('nxd-phongban').classList.add('error');document.getElementById('nxde-phongban').classList.add('show');valid=false;}
+  if(!cb){document.getElementById('nxd-canbo').classList.add('error');document.getElementById('nxde-canbo').classList.add('show');valid=false;}
+  if(!valid) return;
+  if(nxdIdx >= 0){ dtRecords[nxdIdx].nguoiXetDuyet = cb; renderDtTable(); }
+  closeNxdModal();
+}
+
+// close add modal on overlay click
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('addModal').addEventListener('click',function(e){
+    if(e.target===this) closeAddModal();
+  });
+  document.getElementById('delModal').addEventListener('click',function(e){
+    if(e.target===this) closeDelModal();
+  });
+  document.getElementById('editModal').addEventListener('click',function(e){
+    if(e.target===this) closeEditModal();
+  });
+  document.getElementById('dtModal').addEventListener('click',function(e){
+    if(e.target===this) closeDtModal();
+  });
+  document.getElementById('delDtModal').addEventListener('click',function(e){
+    if(e.target===this) closeDelDtModal();
+  });
+  document.getElementById('nxdModal').addEventListener('click',function(e){
+    if(e.target===this) closeNxdModal();
+  });
+});
+
+function setActive(el){
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+}
+function toggleNotif(e){
+  e.stopPropagation();
+  document.getElementById('notifDropdown').classList.toggle('open');
+}
+document.addEventListener('click',function(){
+  document.getElementById('notifDropdown').classList.remove('open');
+});
+document.getElementById('logoutModal').addEventListener('click',function(e){
+  if(e.target===this) this.classList.remove('open');
+});
+</script>
+</body>
+</html>
