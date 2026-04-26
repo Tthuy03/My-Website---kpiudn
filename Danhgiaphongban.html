@@ -160,7 +160,7 @@ tbody td:last-child{border-right:none}
     </div>
 
     <div class="sidebar-section-label">Thống kê</div>
-    <div class="nav-item" onclick="setActive(this)">
+    <div class="nav-item" onclick="window.location.href='Baocao.html'">
       <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
       Báo cáo – Thống kê
     </div>
@@ -748,7 +748,11 @@ tbody td:last-child{border-right:none}
 
 
 <script>
-let records = [];
+let records = [
+  {ten:'Đánh giá KPI Quý I/2026', muc:'Chuyên viên hành chính', phieu:'Đánh giá cá nhân', batdau:'2026-01-01', ketthuc:'2026-03-31', trangthai:'Đã đóng'},
+  {ten:'Đánh giá KPI Quý II/2026', muc:'Giảng viên', phieu:'Đánh giá cá nhân', batdau:'2026-04-01', ketthuc:'2026-06-30', trangthai:'Đánh giá'},
+  {ten:'Đánh giá thi đua năm học 2025-2026', muc:'Lãnh đạo', phieu:'Đánh giá cá nhân', batdau:'2025-09-01', ketthuc:'2026-05-31', trangthai:'Đang mở'},
+];
 
 function openAddModal(){
   document.getElementById('addModal').classList.add('open');
@@ -1295,6 +1299,7 @@ document.addEventListener('click',function(){
 document.getElementById('logoutModal').addEventListener('click',function(e){
   if(e.target===this) this.classList.remove('open');
 });
+renderTable();
 </script>
 </body>
 </html>

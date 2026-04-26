@@ -143,7 +143,7 @@ input:checked+.slider::before{transform:translateX(20px)}
     </div>
 
     <div class="sidebar-section-label">Thống kê</div>
-    <div class="nav-item" onclick="setActive(this)">
+    <div class="nav-item" onclick="window.location.href='Baocao.html'">
       <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
       Báo cáo – Thống kê
     </div>
@@ -397,7 +397,12 @@ input:checked+.slider::before{transform:translateX(20px)}
 
 
 <script>
-let records = [];
+let records = [
+  {loai:'Chuyên môn', ma:'dhtv_tc_01.01', ten:'Tỷ lệ hoàn thành nhiệm vụ được giao', mota:'Đánh giá mức độ hoàn thành các nhiệm vụ được phân công', thang:30, minchung:'Báo cáo công việc', active:true},
+  {loai:'Nghiên cứu khoa học', ma:'dhtv_tc_03.03', ten:'Số sản phẩm khoa học trên giảng viên', mota:'Bài báo, sách chuyên khảo, báo cáo hội nghị, bằng sáng chế', thang:20, minchung:'Minh chứng NCKH', active:true},
+  {loai:'Hợp tác quốc tế', ma:'dhtv_tc_04.03', ten:'Giảng viên và sinh viên nước ngoài (inbound)', mota:'Số lượng giảng viên và sinh viên nước ngoài đến học tập, giảng dạy', thang:20, minchung:'Hợp đồng, quyết định', active:true},
+  {loai:'Chuyên môn', ma:'dhtv_tc_02.01', ten:'Chất lượng giảng dạy và đào tạo', mota:'Kết quả đánh giá chất lượng giảng dạy từ sinh viên và đồng nghiệp', thang:25, minchung:'Phiếu khảo sát', active:false},
+];
 let editIdx  = -1;
 let delIdx   = -1;
 
@@ -553,6 +558,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(el) el.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); });
   });
 });
+renderTable();
 </script>
 </body>
 </html>

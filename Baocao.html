@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Báo cáo – Thống kê – MIS UDN</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* ── PAGE TITLE ── */
+      .page-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2056a8;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 18px 0 14px;
+        border-bottom: 1.5px solid #e0e8f5;
+        margin-bottom: 18px;
+      }
+
+      /* ── TABS ── */
+      .tab-bar {
+        display: flex;
+        align-items: stretch;
+        gap: 6px;
+        background: #fff;
+        border: 1.5px solid #c8d6ea;
+        border-radius: 10px;
+        padding: 6px;
+        margin-bottom: 22px;
+      }
+      .tab-item {
+        flex: 1;
+        text-align: center;
+        padding: 11px 14px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #1a2a4a;
+        border-radius: 7px;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        font-family: "Segoe UI", "Arial", sans-serif;
+      }
+      .tab-item:hover {
+        background: #f0f4fa;
+      }
+      .tab-item.active {
+        background: #2056a8;
+        color: #fff;
+      }
+
+      /* ── SUB-FILTER ROW ── */
+      .sub-filter-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-bottom: 20px;
+      }
+      .sub-filter-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .sub-filter-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1a2a4a;
+      }
+      .sub-filter-select {
+        width: 100%;
+        border: 1px solid #dde3ee;
+        border-radius: 6px;
+        padding: 9px 32px 9px 12px;
+        font-size: 0.87rem;
+        font-family: "Segoe UI", "Arial", sans-serif;
+        color: #666;
+        background: #fff
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")
+          no-repeat right 10px center;
+        appearance: none;
+        cursor: pointer;
+      }
+      .sub-filter-select:focus {
+        outline: none;
+        border-color: #2056a8;
+      }
+
+      /* ── STAT CARDS ── */
+      .stat-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 22px;
+      }
+      .stat-card {
+        border: 1.5px solid #c8d6ea;
+        border-radius: 10px;
+        background: #fff;
+        padding: 18px 20px;
+        min-height: 96px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+      }
+      .stat-label {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #1a2a4a;
+        text-align: center;
+        width: 100%;
+      }
+      .stat-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #2056a8;
+        letter-spacing: 0.5px;
+        text-align: center;
+        width: 100%;
+      }
+
+      /* ── ACTION BUTTONS ── */
+      .report-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 18px;
+        border-radius: 7px;
+        background: #2056a8;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        font-family: "Segoe UI", "Arial", sans-serif;
+        border: none;
+        cursor: pointer;
+        transition: opacity 0.15s;
+      }
+      .btn-action:hover {
+        opacity: 0.88;
+      }
+      .btn-action svg {
+        flex-shrink: 0;
+      }
+
+      /* ── REPORT TABLE ── */
+      .report-table-wrap {
+        border-radius: 8px;
+        border: 1.5px solid #c8d6ea;
+        overflow: hidden;
+      }
+      .report-table-wrap table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+      }
+      .report-table-wrap thead tr {
+        background: #2056a8;
+      }
+      .report-table-wrap thead th {
+        padding: 11px 12px;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-align: center;
+        white-space: nowrap;
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .report-table-wrap thead th:last-child {
+        border-right: none;
+      }
+      .report-table-wrap tbody tr {
+        border-bottom: 1.5px solid #dde6f0;
+        background: #fff;
+        transition: background 0.15s;
+      }
+      .report-table-wrap tbody tr:last-child {
+        border-bottom: none;
+      }
+      .report-table-wrap tbody tr:hover {
+        background: #f5f8ff;
+      }
+      .report-table-wrap tbody td {
+        padding: 11px 12px;
+        color: #1a2a4a;
+        vertical-align: middle;
+        text-align: center;
+        border-right: 1px solid #dde6f0;
+      }
+      .report-table-wrap tbody td:last-child {
+        border-right: none;
+      }
+      .report-table-wrap tbody td.left {
+        text-align: left;
+      }
+
+      /* ── TAB PANEL ── */
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <!-- ══ SIDEBAR ══ -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+          <div class="sidebar-brand">
+            <div
+              class="brand-logo"
+              onclick="window.location.href='Dashboard.html'"
+              title="Về trang chủ"
+            >
+              <!-- ===== ĐỔI LOGO TẠI ĐÂY ===== -->
+              <img src="./Hinhanh/logo.png" alt="Logo" />
+              <!-- ============================= -->
+            </div>
+            <div class="brand-name">MIS – UDN</div>
+          </div>
+          <div class="thi-dua-label">THI ĐUA KHEN THƯỞNG</div>
+        </div>
+
+        <div class="sidebar-section-label">Dashboard</div>
+        <div class="nav-item" onclick="window.location.href='Dashboard.html'">
+          <span class="icon"
+            ><svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" /></svg
+          ></span>
+          Dashboard
+        </div>
+
+        <div class="sidebar-section-label">Đợt đánh giá</div>
+        <div
+          class="nav-item"
+          onclick="window.location.href='Danhgiacanhan.html'"
+        >
+          <span class="icon"
+            ><svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
+          ></span>
+          Đánh giá cá nhân
+        </div>
+        <div
+          class="nav-item"
+          onclick="window.location.href='Danhgiaphongban.html'"
+        >
+          <span class="icon"
+            ><svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" /></svg
+          ></span>
+          Đánh giá phòng ban/trung tâm
+        </div>
+        <div
+          class="nav-item"
+          onclick="window.location.href='Danhgiacosodaotao.html'"
+        >
+          <span class="icon"
+            ><svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" /></svg
+          ></span>
+          Đánh giá cơ sở đào tạo
+        </div>
+        <div
+          class="nav-item"
+          onclick="window.location.href='Phieudanhgia.html'"
+        >
+          <span class="icon"
+            ><svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              />
+              <polyline points="14 2 14 8 20 8" /></svg
+          ></span>
+          Phiếu đánh giá
+        </div>
+
+        <div class="sidebar-section-label">Quản lý danh mục</div>
+        <div class="nav-item" onclick="window.location.href='Tieuchi.html'">
+          <span class="icon"
+            ><svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"
+              /></svg
+          ></span>
+          Tiêu chí
+        </div>
+        <div class="nav-item" onclick="window.location.href='Loaitieuchi.html'">
+          <span class="icon"
+            ><svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="8" y1="6" x2="21" y2="6" />
+              <line x1="8" y1="12" x2="21" y2="12" />
+              <line x1="8" y1="18" x2="21" y2="18" />
+              <line x1="3" y1="6" x2="3.01" y2="6" />
+              <line x1="3" y1="12" x2="3.01" y2="12" />
+              <line x1="3" y1="18" x2="3.01" y2="18" /></svg
+          ></span>
+          Loại tiêu chí
+        </div>
+        <div
+          class="nav-item"
+          onclick="window.location.href='Linhvucdanhgia.html'"
+        >
+          <span class="icon"
+            ><svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="3" y1="15" x2="21" y2="15" />
+              <line x1="9" y1="9" x2="9" y2="21" /></svg
+          ></span>
+          Lĩnh vực đánh giá
+        </div>
+
+        <div class="sidebar-section-label">Thống kê</div>
+        <div class="nav-item active">
+          <span class="icon"
+            ><svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" /></svg
+          ></span>
+          Báo cáo – Thống kê
+        </div>
+      </aside>
+
+      <!-- ══ MAIN ══ -->
+      <div class="main">
+        <header class="topbar">
+          <button
+            class="topbar-menu"
+            onclick="document.getElementById('sidebar').classList.toggle('collapsed')"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+            >
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="3.01" y2="18" />
+            </svg>
+          </button>
+          <div class="topbar-title">Hệ thống đánh giá – Đại học Đà Nẵng</div>
+          <!-- ===== ĐỔI TÊN NGƯỜI DÙNG TẠI ĐÂY ===== -->
+          <div
+            class="user-profile"
+            onclick="document.getElementById('logoutModal').classList.add('open')"
+            title="Đăng xuất"
+          >
+            <span class="user-name">Trần Văn A</span>
+            <div class="user-avatar">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+              </svg>
+            </div>
+          </div>
+          <!-- ========================================= -->
+        </header>
+
+        <div class="content">
+          <!-- Filter bar (Cơ sở + Năm) -->
+          <div class="filter-bar">
+            <span class="filter-label">Cơ sở giáo dục</span>
+            <select class="filter-select">
+              <option value="">-- Chọn cơ sở giáo dục --</option>
+              <!-- ===== NHẬP TÊN CƠ SỞ GIÁO DỤC TẠI ĐÂY =====
+          <option>Tên cơ sở giáo dục</option>
+          ================================================= -->
+              <option>ĐẠI HỌC ĐÀ NẴNG</option>
+              <option>TRƯỜNG ĐẠI HỌC KINH TẾ - ĐẠI HỌC ĐÀ NẴNG</option>
+              <option>TRƯỜNG ĐẠI HỌC BÁCH KHOA - ĐẠI HỌC ĐÀ NẴNG</option>
+              <option>TRƯỜNG ĐẠI HỌC SƯ PHẠM - ĐẠI HỌC ĐÀ NẴNG</option>
+              <option>TRƯỜNG ĐẠI HỌC NGOẠI NGỮ - ĐẠI HỌC ĐÀ NẴNG</option>
+            </select>
+            <div class="filter-divider"></div>
+            <span class="filter-label">Năm</span>
+            <select class="filter-select filter-year">
+              <option value="">-- Năm --</option>
+              <!-- ===== NHẬP NĂM TẠI ĐÂY =====
+          <option>2026</option>
+          ================================= -->
+              <option>2025</option>
+              <option>2024</option>
+              <option>2023</option>
+              <option>2022</option>
+            </select>
+          </div>
+
+          <!-- Page title -->
+          <div class="page-title">Báo cáo thống kê</div>
+
+          <!-- Tabs -->
+          <div class="tab-bar">
+            <div class="tab-item active" onclick="switchTab(this,'tab-cn')">
+              Đánh giá cá nhân
+            </div>
+            <div class="tab-item" onclick="switchTab(this,'tab-pb')">
+              Đánh giá phòng ban/ trung tâm
+            </div>
+            <div class="tab-item" onclick="switchTab(this,'tab-cs')">
+              Đánh giá cơ sở đào tạo
+            </div>
+          </div>
+
+          <!-- ══════════ TAB: ĐÁNH GIÁ CÁ NHÂN ══════════ -->
+          <div class="tab-panel active" id="tab-cn">
+            <!-- Sub-filters -->
+            <div class="sub-filter-row">
+              <div class="sub-filter-item">
+                <label class="sub-filter-label">Đợt đánh giá</label>
+                <select class="sub-filter-select">
+                  <option value="">-- Chọn đợt đánh giá --</option>
+                  <!-- ===== NHẬP ĐỢT ĐÁNH GIÁ TẠI ĐÂY ===== -->
+                  <option>Đợt 1 - 2025</option>
+                  <option>Đợt 2 - 2025</option>
+                </select>
+              </div>
+              <div class="sub-filter-item">
+                <label class="sub-filter-label">Phòng/Khoa</label>
+                <select class="sub-filter-select">
+                  <option value="">-- Chọn phòng/khoa --</option>
+                  <!-- ===== NHẬP PHÒNG/KHOA TẠI ĐÂY ===== -->
+                  <option>Phòng Tổ chức – Hành chính</option>
+                  <option>Phòng Đào tạo</option>
+                  <option>Phòng Kế hoạch – Tài chính</option>
+                  <option>Phòng Công tác sinh viên</option>
+                </select>
+              </div>
+              <div class="sub-filter-item">
+                <label class="sub-filter-label">Xếp Loại</label>
+                <select class="sub-filter-select">
+                  <option value="">-- Chọn xếp loại --</option>
+                  <!-- ===== NHẬP XẾP LOẠI TẠI ĐÂY ===== -->
+                  <option>Xuất sắc</option>
+                  <option>Giỏi</option>
+                  <option>Khá</option>
+                  <option>Trung bình</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Stat cards -->
+            <div class="stat-row">
+              <div class="stat-card">
+                <div class="stat-label">Tổng cán bộ</div>
+                <div class="stat-value" id="cn-tongCanBo">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Đã đánh giá</div>
+                <div class="stat-value" id="cn-daDanhGia">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Chờ xét duyệt</div>
+                <div class="stat-value" id="cn-choXetDuyet">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Điểm Trung bình</div>
+                <div class="stat-value" id="cn-diemTB">0</div>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="report-actions">
+              <button class="btn-action" onclick="exportExcel('cn')">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="9" y1="13" x2="15" y2="19" />
+                  <line x1="15" y1="13" x2="9" y2="19" />
+                </svg>
+                Xuất Excel
+              </button>
+              <button class="btn-action" onclick="printReport('cn')">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 6 2 18 2 18 9" />
+                  <path
+                    d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+                  />
+                  <rect x="6" y="14" width="12" height="8" />
+                </svg>
+                In báo cáo
+              </button>
+            </div>
+
+            <!-- Table -->
+            <div class="report-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 60px">STT</th>
+                    <th style="width: 90px">ID</th>
+                    <th>Email</th>
+                    <th>Họ và Tên</th>
+                    <th style="width: 110px">Điểm tự đánh giá</th>
+                    <th style="width: 110px">Điểm xét duyệt</th>
+                    <th style="width: 90px">Xếp loại</th>
+                  </tr>
+                </thead>
+                <tbody id="cn-tbody">
+                  <!-- ===== NHẬP DỮ LIỆU CÁ NHÂN TẠI ĐÂY =====
+              Sao chép và thay nội dung:
+              <tr>
+                <td>1</td>
+                <td>3892445</td>
+                <td>tranvana@ac.udn.vn</td>
+                <td>Trần Văn A</td>
+                <td>96</td>
+                <td>94</td>
+                <td>Xuất sắc</td>
+              </tr>
+              ================================================= -->
+                  <tr>
+                    <td>1</td>
+                    <td>3892445</td>
+                    <td>tranvana@ac.udn.vn</td>
+                    <td>Trần Văn A</td>
+                    <td>96</td>
+                    <td>94</td>
+                    <td>Xuất sắc</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>3892455</td>
+                    <td>tranvanb@ac.udn.vn</td>
+                    <td>Trần Văn B</td>
+                    <td>88</td>
+                    <td>85</td>
+                    <td>Giỏi</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ══════════ TAB: ĐÁNH GIÁ PHÒNG BAN ══════════ -->
+          <div class="tab-panel" id="tab-pb">
+            <div class="sub-filter-row">
+              <div class="sub-filter-item">
+                <label class="sub-filter-label">Đợt đánh giá</label>
+                <select class="sub-filter-select">
+                  <option value="">-- Chọn đợt đánh giá --</option>
+                  <option>Đợt 1 - 2025</option>
+                  <option>Đợt 2 - 2025</option>
+                </select>
+              </div>
+             <div class="sub-filter-item">
+  <label class="sub-filter-label">Phòng ban/Trung tâm</label>
+  <select class="sub-filter-select">
+    <option value="">-- Chọn phòng ban/trung tâm --</option>
+    <!-- ===== NHẬP PHÒNG BAN/TRUNG TÂM TẠI ĐÂY ===== -->
+    <option>Phòng Tổ chức – Hành chính</option>
+    <option>Phòng Đào tạo</option>
+    <option>Phòng Kế hoạch – Tài chính</option>
+    <option>Phòng Công tác sinh viên</option>
+  </select>
+</div>
+              <div class="sub-filter-item">
+                <label class="sub-filter-label">Xếp Loại</label>
+                <select class="sub-filter-select">
+                  <option value="">-- Chọn xếp loại --</option>
+                  <option>Xuất sắc</option>
+                  <option>Giỏi</option>
+                  <option>Khá</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-card">
+                <div class="stat-label">Tổng phòng ban</div>
+                <div class="stat-value" id="pb-tong">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Đã đánh giá</div>
+                <div class="stat-value" id="pb-daDanhGia">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Chờ xét duyệt</div>
+                <div class="stat-value" id="pb-choXetDuyet">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Điểm Trung bình</div>
+                <div class="stat-value" id="pb-diemTB">0</div>
+              </div>
+            </div>
+
+            <div class="report-actions">
+              <button class="btn-action" onclick="exportExcel('pb')">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="9" y1="13" x2="15" y2="19" />
+                  <line x1="15" y1="13" x2="9" y2="19" />
+                </svg>
+                Xuất Excel
+              </button>
+              <button class="btn-action" onclick="printReport('pb')">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 6 2 18 2 18 9" />
+                  <path
+                    d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+                  />
+                  <rect x="6" y="14" width="12" height="8" />
+                </svg>
+                In báo cáo
+              </button>
+            </div>
+
+            <div class="report-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 60px">STT</th>
+                    <th style="width: 120px">Mã phòng ban</th>
+                    <th>Tên phòng ban</th>
+                    <th style="width: 110px">Điểm tự đánh giá</th>
+                    <th style="width: 110px">Điểm xét duyệt</th>
+                    <th style="width: 90px">Xếp loại</th>
+                  </tr>
+                </thead>
+                <tbody id="pb-tbody">
+                  <!-- ===== NHẬP DỮ LIỆU PHÒNG BAN TẠI ĐÂY ===== -->
+                  <tr>
+                    <td>1</td>
+                    <td>PB001</td>
+                    <td>Phòng Tổ chức – Hành chính</td>
+                    <td>92</td>
+                    <td>90</td>
+                    <td>Xuất sắc</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>PB002</td>
+                    <td>Phòng Đào tạo</td>
+                    <td>87</td>
+                    <td>84</td>
+                    <td>Giỏi</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ══════════ TAB: ĐÁNH GIÁ CƠ SỞ ĐÀO TẠO ══════════ -->
+          <div class="tab-panel" id="tab-cs">
+            <div class="sub-filter-row">
+              <div class="sub-filter-item">
+                <label class="sub-filter-label">Đợt đánh giá</label>
+                <select class="sub-filter-select">
+                  <option value="">-- Chọn đợt đánh giá --</option>
+                  <option>Đợt 1 - 2025</option>
+                  <option>Đợt 2 - 2025</option>
+                </select>
+              </div>
+          
+              <div class="sub-filter-item">
+                <label class="sub-filter-label">Xếp Loại</label>
+                <select class="sub-filter-select">
+                  <option value="">-- Chọn xếp loại --</option>
+                  <option>Xuất sắc</option>
+                  <option>Giỏi</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-card">
+                <div class="stat-label">Tổng cơ sở</div>
+                <div class="stat-value" id="cs-tong">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Đã đánh giá</div>
+                <div class="stat-value" id="cs-daDanhGia">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Chờ xét duyệt</div>
+                <div class="stat-value" id="cs-choXetDuyet">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Điểm Trung bình</div>
+                <div class="stat-value" id="cs-diemTB">0</div>
+              </div>
+            </div>
+
+            <div class="report-actions">
+              <button class="btn-action" onclick="exportExcel('cs')">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="9" y1="13" x2="15" y2="19" />
+                  <line x1="15" y1="13" x2="9" y2="19" />
+                </svg>
+                Xuất Excel
+              </button>
+              <button class="btn-action" onclick="printReport('cs')">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 6 2 18 2 18 9" />
+                  <path
+                    d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+                  />
+                  <rect x="6" y="14" width="12" height="8" />
+                </svg>
+                In báo cáo
+              </button>
+            </div>
+
+            <div class="report-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 60px">STT</th>
+                    <th style="width: 120px">Mã cơ sở</th>
+                    <th>Tên cơ sở</th>
+                    <th style="width: 110px">Điểm tự đánh giá</th>
+                    <th style="width: 110px">Điểm xét duyệt</th>
+                    <th style="width: 90px">Xếp loại</th>
+                  </tr>
+                </thead>
+                <tbody id="cs-tbody">
+                  <!-- ===== NHẬP DỮ LIỆU CƠ SỞ TẠI ĐÂY ===== -->
+                  <tr>
+                    <td>1</td>
+                    <td>CS001</td>
+                    <td>Trường ĐH Bách Khoa</td>
+                    <td>94</td>
+                    <td>92</td>
+                    <td>Xuất sắc</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>CS002</td>
+                    <td>Trường ĐH Kinh Tế</td>
+                    <td>89</td>
+                    <td>86</td>
+                    <td>Giỏi</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- end content -->
+      </div>
+      <!-- end main -->
+    </div>
+    <!-- end app -->
+
+    <!-- Logout Modal -->
+    <div class="modal-overlay" id="logoutModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <span class="modal-header-title">Đăng xuất</span>
+          <button
+            class="modal-close"
+            onclick="document.getElementById('logoutModal').classList.remove('open')"
+          >
+            &#x2715;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-icon">?</div>
+          <div class="modal-msg">Bạn chắc chắn muốn đăng xuất?</div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="modal-btn cancel"
+            onclick="document.getElementById('logoutModal').classList.remove('open')"
+          >
+            &#x2715; Huỷ
+          </button>
+          <button
+            class="modal-btn confirm"
+            onclick="window.location.href='index.html'"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14H6L5 6" />
+              <path d="M10 11v6M14 11v6" />
+              <path d="M9 6V4h6v2" />
+            </svg>
+            Đăng xuất
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function switchTab(el, panelId) {
+        document
+          .querySelectorAll(".tab-item")
+          .forEach((t) => t.classList.remove("active"));
+        el.classList.add("active");
+        document
+          .querySelectorAll(".tab-panel")
+          .forEach((p) => p.classList.remove("active"));
+        document.getElementById(panelId).classList.add("active");
+      }
+
+      function exportExcel(pfx) {
+        alert("Xuất Excel báo cáo: " + pfx);
+      }
+      function printReport(pfx) {
+        window.print();
+      }
+
+      document
+        .getElementById("logoutModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) this.classList.remove("open");
+        });
+    </script>
+  </body>
+</html>

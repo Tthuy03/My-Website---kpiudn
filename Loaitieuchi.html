@@ -139,7 +139,7 @@ input:checked+.slider::before{transform:translateX(20px)}
     </div>
 
     <div class="sidebar-section-label">Thống kê</div>
-    <div class="nav-item" onclick="setActive(this)">
+    <div class="nav-item" onclick="window.location.href='Baocao.html'">
       <span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
       Báo cáo – Thống kê
     </div>
@@ -376,7 +376,12 @@ input:checked+.slider::before{transform:translateX(20px)}
 
 
 <script>
-let records=[], editIdx=-1, delIdx=-1;
+let records=[
+  {linhvuc:'Lĩnh vực 1', ma:'LTC001', ten:'Chuyên môn nghiệp vụ', active:true},
+  {linhvuc:'Lĩnh vực 2', ma:'LTC002', ten:'Nghiên cứu khoa học', active:true},
+  {linhvuc:'Lĩnh vực 1', ma:'LTC003', ten:'Hợp tác quốc tế', active:true},
+  {linhvuc:'Lĩnh vực 3', ma:'LTC004', ten:'Phục vụ cộng đồng', active:false},
+], editIdx=-1, delIdx=-1;
 
 function setActive(el){
   document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
@@ -511,6 +516,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(el) el.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); });
   });
 });
+renderTable();
 </script>
 </body>
 </html>
