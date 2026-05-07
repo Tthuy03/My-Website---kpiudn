@@ -455,6 +455,14 @@ document.getElementById('ef-active').addEventListener('change',function(){
 ['addModal','editModal','delModal'].forEach(id=>{
   document.getElementById(id).addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); });
 });
+records = [
+    { ma: "UDN_NLD",  ten: "Người lao động",                                 trangthai: "Sử dụng" },
+    { ma: "UDN_LD",   ten: "Lãnh đạo đơn vị (Trưởng/Phó)",                  trangthai: "Sử dụng" },
+    { ma: "UDN_CVHC", ten: "Chuyên viên hành chính",                         trangthai: "Sử dụng" },
+    { ma: "UDN_NCV",  ten: "Nghiên cứu viên",                                trangthai: "Không sử dụng" },
+    { ma: "UDN_GV",   ten: "Đánh giá thi đua khen thưởng các trường ĐHTV",  trangthai: "Sử dụng" },
+  ];
+  renderTable();
 </script>
 </body>
 </html>
